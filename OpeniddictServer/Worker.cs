@@ -109,6 +109,47 @@ namespace OpeniddictServer
                         }
                     });
                 }
+
+                const string client_id2 = "client-id-code";
+                if (await manager.FindByClientIdAsync(client_id2) is null)
+                {
+
+                    var url = "http://localhost:5284";
+                    await manager.CreateAsync(new OpenIddictApplicationDescriptor
+                    {
+                        ClientId = client_id2,
+                        ConsentType = ConsentTypes.Explicit,
+                        DisplayName = "web api code PKCE",
+                        RedirectUris =
+                        {
+                             new Uri($"{url}/swagger/oauth2-redirect.html")
+                        },
+
+                        ClientSecret = "client-secret-code",
+                        Permissions =
+                        {
+                     OpenIddictConstants.Permissions.Endpoints.Authorization,
+                     OpenIddictConstants.Permissions.Endpoints.Token,
+
+                    // Grant type permissions
+                     OpenIddictConstants.Permissions.GrantTypes.AuthorizationCode,
+                     OpenIddictConstants.Permissions.GrantTypes.RefreshToken,
+                    Permissions.Scopes.Email,
+                            Permissions.Scopes.Profile,
+                            Permissions.Scopes.Roles,
+                    // Scope permissions
+                      Permissions.Prefixes.Scope + "dataEventRecords",
+
+                    // Response types
+                       OpenIddictConstants.Permissions.ResponseTypes.Code,
+                       OpenIddictConstants.Permissions.ResponseTypes.IdToken
+                        },
+                        Requirements =
+                        {
+                            Requirements.Features.ProofKeyForCodeExchange
+                        }
+                    });
+                }
             }
 
         }
