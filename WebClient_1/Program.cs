@@ -26,6 +26,8 @@ namespace WebClient_1
             services.Configure<ApiBehaviorOptions>(options => { options.SuppressModelStateInvalidFilter = true; });
             builder.Services.AddSwaggerGen(options =>
             {
+                //bug Conflicting method/path combination "POST api/app/XXX" for actions
+                options.ResolveConflictingActions(apiDescriprtions => apiDescriprtions.First());
                 options.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Title = "WebClient_1",
@@ -143,7 +145,11 @@ namespace WebClient_1
             #endregion
             #region OpenIddict
             services
-               .AddOpenIddict()
+               .AddOpenIddict().AddClient(options =>
+               {
+
+
+               })
                .AddValidation(options =>
                {
                    // Import the configuration from the local OpenIddict server instance.
@@ -167,6 +173,8 @@ namespace WebClient_1
 
                 });
             });
+            services.AddHttpContextAccessor();
+            services.AddHttpClient();
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -176,7 +184,7 @@ namespace WebClient_1
                 app.UseSwaggerUI(settings =>
                 {
                     settings.SwaggerEndpoint("/swagger/v1/swagger.json", "WebClient_1");
-                    settings.HeadContent = $"123";
+                    //settings.HeadContent = $"123";
                     settings.DocumentTitle = $"WebClient_1";
                     settings.DefaultModelExpandDepth(0);
                     settings.DefaultModelRendering(ModelRendering.Model);

@@ -190,6 +190,7 @@ namespace OpeniddictServer
             app.UseAuthorization();
 
             app.MapRazorPages();
+
             app.MapDefaultControllerRoute();
             //app.UseEndpoints(endpoints =>
             //{

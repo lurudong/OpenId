@@ -6,14 +6,15 @@ namespace Auth.Pages.Connect
     public class LoginViewModel
     {
 
-        [Required]
+        [Required(ErrorMessage = "请输入登录名")]
         [EmailAddress]
-        [Display(Name = "用户名")]
-        public string UserName { get; set; } = null!;
+        [Display(Name = "登录名")]
 
-        [Required]
+        public string UserName { get; set; } = "179722134@qq.com";
+
+        [Required(ErrorMessage = "请输入密码")]
         [Display(Name = "密码")]
-        public string Password { get; set; } = null!;
+        public string Password { get; set; } = "123qwe!@#";
 
         [Required]
         public string ReturnUrl { get; set; } = null!;

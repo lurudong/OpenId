@@ -6,7 +6,10 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using OpenIddict.Abstractions;
+using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Auth
 {
@@ -21,7 +24,17 @@ namespace Auth
             builder.Services.AddRazorPages();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerGen(options =>
+            {
+
+                options.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Title = "auth",
+                    Version = "0.1"
+                });
+
+                options.ResolveConflictingActions(x => x.First());
+            });
 
             #region db
             services.AddDbContext<ApplicationDbContext>(options =>
@@ -183,10 +196,39 @@ namespace Auth
                 });
             });
 
+            var types = typeof(Program).Assembly.ExportedTypes.Where(x => !x.IsAbstract && typeof(EndpointsBase).IsAssignableFrom(x));
+            //foreach (var item in types)
+            //{
+            //    builder.Services.AddScoped(item, item);
+            //}
+            builder.Services.AddScoped<TestEndpoints>();
             var app = builder.Build();
             #region
-            AuthorizeEndpoints.ConfigureApplication(app);
-            TokenEndpoints.ConfigureApplication(app);
+
+            var methods = types.SelectMany(o => o.GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance)).ToList();
+
+            foreach (MethodInfo methodInfo in methods)
+            {
+
+                using var scope = app.Services.CreateScope();
+                var servicesType = scope.ServiceProvider.GetService(methodInfo.DeclaringType!);
+                //var servicesType = app.Services.GetRequiredService<TestEndpoints>();
+                var type = Expression.GetDelegateType(
+                     methodInfo.GetParameters().
+
+                         Select(parameterInfo => parameterInfo.ParameterType)
+                .Concat(new List<Type>
+                    { methodInfo.ReturnType }).ToArray());
+                var instance = Delegate.
+                    CreateDelegate(type, servicesType, methodInfo);
+                //app.MapGet("/api/get/", [Microsoft.AspNetCore.Authorization.AuthorizeAttribute] () => { 
+
+
+                //});
+                app.MapMethods("/api/test/getasync", new[] { HttpMethods.Get }, instance);
+
+            }
+
 
             #endregion
             // Configure the HTTP request pipeline.
@@ -196,6 +238,7 @@ namespace Auth
                 app.UseSwaggerUI();
             }
             app.UseCors("CorsPolicy");
+            app.UseStaticFiles();
             app.UseHttpsRedirection();
 
             //app.UseAuthorization();
@@ -203,6 +246,7 @@ namespace Auth
             app.UseAuthorization();
             app.MapRazorPages();
             app.MapControllers();
+
             await SeedUsers(app.Services);
             await app.RunAsync();
 
@@ -213,6 +257,8 @@ namespace Auth
         private static async Task SeedUsers(IServiceProvider serviceProvider)
         {
             using var scope = serviceProvider.CreateScope();
+
+
             await using var context = scope.ServiceProvider.GetService<ApplicationDbContext>();
 
 
