@@ -8,8 +8,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using OpenIddict.Abstractions;
-using System.Linq.Expressions;
-using System.Reflection;
 
 namespace Auth
 {
@@ -201,36 +199,43 @@ namespace Auth
             //{
             //    builder.Services.AddScoped(item, item);
             //}
-            builder.Services.AddScoped<TestEndpoints>();
+            //builder.Services.AddScoped<TestEndpoints>();
             var app = builder.Build();
             #region
 
-            var methods = types.SelectMany(o => o.GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance)).ToList();
+            //var methods = types.SelectMany(o => o.GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance)).ToList();
 
-            foreach (MethodInfo methodInfo in methods)
-            {
+            //foreach (MethodInfo methodInfo in methods)
+            //{
 
-                using var scope = app.Services.CreateScope();
-                var servicesType = scope.ServiceProvider.GetService(methodInfo.DeclaringType!);
-                //var servicesType = app.Services.GetRequiredService<TestEndpoints>();
-                var type = Expression.GetDelegateType(
-                     methodInfo.GetParameters().
+            //    using var scope = app.Services.CreateScope();
+            //    var servicesType = scope.ServiceProvider.GetService(methodInfo.DeclaringType!);
+            //    //var servicesType = app.Services.GetRequiredService<TestEndpoints>();
+            //    var type = Expression.GetDelegateType(
+            //         methodInfo.GetParameters().
 
-                         Select(parameterInfo => parameterInfo.ParameterType)
-                .Concat(new List<Type>
-                    { methodInfo.ReturnType }).ToArray());
-                var instance = Delegate.
-                    CreateDelegate(type, servicesType, methodInfo);
-                //app.MapGet("/api/get/", [Microsoft.AspNetCore.Authorization.AuthorizeAttribute] () => { 
+            //             Select(parameterInfo => parameterInfo.ParameterType)
+            //    .Concat(new List<Type>
+            //        { methodInfo.ReturnType }).ToArray());
+            //    var instance = Delegate.
+            //        CreateDelegate(type, servicesType, methodInfo);
+            //    //app.MapGet("/api/get/", [Microsoft.AspNetCore.Authorization.AuthorizeAttribute] () => { 
 
 
-                //});
-                app.MapMethods("/api/test/getasync", new[] { HttpMethods.Get }, instance);
+            //    //});
+            //    app.MapMethods("/api/test/getasync", new[] { HttpMethods.Get }, instance);
 
-            }
+            //}
 
 
             #endregion
+
+            #region
+            new AuthorizeEndpoints().ConfigureApplication(app);
+            new TokenEndpoints().ConfigureApplication(app);
+            new UserInfoEndpoints().ConfigureApplication(app);
+            #endregion
+
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {

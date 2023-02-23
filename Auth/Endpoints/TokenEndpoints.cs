@@ -14,10 +14,10 @@ namespace Auth.Endpoints;
 /// </summary>
 public class TokenEndpoints
 {
-    public static void ConfigureApplication(WebApplication app) =>
+    public void ConfigureApplication(WebApplication app) =>
         app.MapPost("~/connect/token", TokenAsync).ExcludeFromDescription();
 
-    private static async Task<IResult> TokenAsync(
+    private async Task<IResult> TokenAsync(
         HttpContext httpContext,
         IOpenIddictScopeManager manager,
         UserManager<ApplicationUser> userManager,

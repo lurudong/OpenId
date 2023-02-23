@@ -15,15 +15,17 @@ namespace Auth.Endpoints;
 /// You can test your authorization server with https://oidcdebugger.com/
 /// You can mock your authorization flow with https://oauth.mocklab.io/
 /// </summary>
-public static class AuthorizeEndpoints
+public class AuthorizeEndpoints
 {
-    public static void ConfigureApplication(WebApplication app)
+
+
+    public void ConfigureApplication(WebApplication app)
     {
         app.MapGet("~/connect/authorize", AuthorizeAsync).ExcludeFromDescription();
         app.MapPost("~/connect/authorize", AuthorizeAsync).ExcludeFromDescription();
     }
 
-    private static async Task<IResult> AuthorizeAsync(
+    private async Task<IResult> AuthorizeAsync(
         HttpContext httpContext,
         IOpenIddictScopeManager scopeManager,
         UserManager<ApplicationUser> userManager,

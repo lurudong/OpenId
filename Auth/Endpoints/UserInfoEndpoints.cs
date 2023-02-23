@@ -6,7 +6,7 @@ namespace Auth.Endpoints
 {
     public sealed class UserInfoEndpoints
     {
-        public static void ConfigureApplication(WebApplication app)
+        public void ConfigureApplication(WebApplication app)
         {
             //app.MapPost("~/connect/userinfo", UserInfoAsync).ExcludeFromDescription();
             app.MapGet("~/connect/userinfo", UserInfoAsync).ExcludeFromDescription();
@@ -14,7 +14,7 @@ namespace Auth.Endpoints
         }
 
         [Authorize]
-        private static async Task<IResult> UserInfoAsync(
+        private async Task<IResult> UserInfoAsync(
             HttpContext httpContext,
             UserManager<ApplicationUser> userManager
             )
