@@ -1,17 +1,18 @@
 ﻿using Auth.Model;
+using Carter;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 
 namespace Auth.Endpoints
 {
-    public sealed class UserInfoEndpoints
+    internal sealed class UserInfoEndpoints : ICarterModule
     {
-        public void ConfigureApplication(WebApplication app)
+        public void AddRoutes(IEndpointRouteBuilder app)
         {
-            //app.MapPost("~/connect/userinfo", UserInfoAsync).ExcludeFromDescription();
             app.MapGet("~/connect/userinfo", UserInfoAsync).ExcludeFromDescription();
-
         }
+
+
 
         [Authorize]
         private async Task<IResult> UserInfoAsync(

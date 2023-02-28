@@ -1,5 +1,6 @@
 ﻿
 using Auth.Model;
+using Carter;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
@@ -12,10 +13,14 @@ namespace Auth.Endpoints;
 /// <summary>
 /// Token Endpoint for OpenIddict
 /// </summary>
-public class TokenEndpoints
+internal sealed class TokenEndpoints : ICarterModule
 {
-    public void ConfigureApplication(WebApplication app) =>
+    public void AddRoutes(IEndpointRouteBuilder app)
+    {
         app.MapPost("~/connect/token", TokenAsync).ExcludeFromDescription();
+    }
+
+
 
     private async Task<IResult> TokenAsync(
         HttpContext httpContext,

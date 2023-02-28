@@ -1,7 +1,9 @@
 
 using Auth.Contexts;
 using Auth.Endpoints;
+using Auth.Extension;
 using Auth.Model;
+using Carter;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -19,6 +21,7 @@ namespace Auth
             var services = builder.Services;
             // Add services to the container.
             builder.Services.AddMvc();
+            builder.Services.AddCarter();
             builder.Services.AddRazorPages();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
@@ -194,12 +197,14 @@ namespace Auth
                 });
             });
 
-            var types = typeof(Program).Assembly.ExportedTypes.Where(x => !x.IsAbstract && typeof(EndpointsBase).IsAssignableFrom(x));
+            var types = typeof(Program).Assembly.ExportedTypes.Where(x => !x.IsAbstract && typeof(EndpointsBase).IsAssignableFrom(x)).ToArray(); ;
             //foreach (var item in types)
             //{
             //    builder.Services.AddScoped(item, item);
             //}
             //builder.Services.AddScoped<TestEndpoints>();
+
+            builder.Services.AddAutoEndpoint(types: types);
             var app = builder.Build();
             #region
 
@@ -231,9 +236,7 @@ namespace Auth
             #endregion
 
             #region
-            new AuthorizeEndpoints().ConfigureApplication(app);
-            new TokenEndpoints().ConfigureApplication(app);
-            new UserInfoEndpoints().ConfigureApplication(app);
+
             #endregion
 
             // Configure the HTTP request pipeline.
@@ -249,6 +252,9 @@ namespace Auth
             //app.UseAuthorization();
             app.UseAuthentication();
             app.UseAuthorization();
+
+            app.MapCarter();
+            app.MapAutoEndpoin();
             app.MapRazorPages();
             app.MapControllers();
 

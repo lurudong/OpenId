@@ -1,6 +1,7 @@
 ﻿
 using Auth.Helpers;
 using Auth.Model;
+using Carter;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -15,15 +16,15 @@ namespace Auth.Endpoints;
 /// You can test your authorization server with https://oidcdebugger.com/
 /// You can mock your authorization flow with https://oauth.mocklab.io/
 /// </summary>
-public class AuthorizeEndpoints
+internal sealed class AuthorizeEndpoints : ICarterModule
 {
-
-
-    public void ConfigureApplication(WebApplication app)
+    public void AddRoutes(IEndpointRouteBuilder app)
     {
+
         app.MapGet("~/connect/authorize", AuthorizeAsync).ExcludeFromDescription();
         app.MapPost("~/connect/authorize", AuthorizeAsync).ExcludeFromDescription();
     }
+
 
     private async Task<IResult> AuthorizeAsync(
         HttpContext httpContext,
